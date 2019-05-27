@@ -53,6 +53,11 @@ public class PostController {
     public List<Post> getPostsFromDad(@PathVariable Long dadId) {
         return postService.findPostsFromDad(dadId);
     }
+    
+    @GetMapping("/postid/{id}")
+    public Post getPostById(@PathVariable Long id) {
+        return postService.findPostById(id).get();
+    }
 
     @GetMapping("/getTop10")
     public List<Post> getTop10Posts() {

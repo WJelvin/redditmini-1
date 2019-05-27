@@ -2,6 +2,7 @@ var allDadsURL = "http://localhost:8080/dad/getAll";
 var allPostsURL = "http://localhost:8080/post/getAll";
 var top10Posts = "http://localhost:8080/post/getTop10";
 var categoryUrl = "http://localhost:8080/post/category/getCategoryByName";
+var postByIdUrl = ""
 
 getAllDads(allDadsURL);
 listPosts(top10Posts);
@@ -17,7 +18,9 @@ function listPosts(url) {
             for (var post in data) {
 
                 var postItem = document.createElement('div');
+                postItem.setAttribute('id', data[post].id); //Lagt till PostId för att kunna hämta id vid voting
                 postItem.setAttribute('class', 'mb-3');
+                //Lägg till href="voteOnPost(postId, vote)
                 postItem.innerHTML = `<div class="row no-gutters">
                         <div class="col-md-1 bg-light text-center">
                             <a href=""> <i class="fas fa-chevron-up"></i></a> <br>
@@ -174,6 +177,21 @@ function createFormForPost() {
     } else {
         a.style.display = 'none';
     }
+}
+
+function voteOnPost(postId, vote) {
+    //Get post from db
+    let url = "http://localhost:8080/post/postid/";
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data),
+    }).then(res => res.json())
+            .then(response => console.log('Success:', JSON.stringify(response)))
+            .catch(error => console.error('Error:', error));
+
 }
 
 $(function () {
