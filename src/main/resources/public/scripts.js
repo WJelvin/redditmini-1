@@ -20,12 +20,12 @@ function listPosts(url) {
                 var postItem = document.createElement('div');
                 postItem.setAttribute('id', data[post].id); //Lagt till PostId för att kunna hämta id vid voting
                 postItem.setAttribute('class', 'mb-3');
-                //Lägg till href="voteOnPost(postId, vote)
+                //Lagt till onclick="VoteUp()" onclick="VoteDown()"
                 postItem.innerHTML = `<div class="row no-gutters">
                         <div class="col-md-1 bg-light text-center">
-                            <a href=""> <i class="fas fa-chevron-up"></i></a> <br>
+                            <a href="" onclick="voteUp(this)"> <i class="fas fa-chevron-up"></i></a> <br>
                             ` + countVotes(data[post].votes) + `<br>
-                            <a href=""> <i class="fas fa-chevron-down"></i></a>
+                            <a href="" onclick="voteDown(this)"> <i class="fas fa-chevron-down"></i></a>
                         </div>
                         <div class="col-md-11">
                             <div class="card-body">
@@ -179,9 +179,10 @@ function createFormForPost() {
     }
 }
 
-function voteOnPost(postId, vote) {
+function voteUp(elem) {
+    var postId = elem.parentNode.parentNode.parentNode.id;
     //Get post from db
-    let url = "http://localhost:8080/post/postid/";
+    let url = "http://localhost:8080/post/postid/" + postId;
     fetch(url, {
         method: 'GET',
         headers: {
