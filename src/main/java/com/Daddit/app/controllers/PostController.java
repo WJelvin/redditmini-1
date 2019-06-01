@@ -9,8 +9,10 @@ import com.Daddit.app.repositories.CategoryRepository;
 import com.Daddit.app.services.CategoryService;
 import com.Daddit.app.services.PostService;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -59,6 +61,11 @@ public class PostController {
     public List<Post> getTop10Posts() {
         return postService.findtop10Posts();
     }
+    
+    @GetMapping("/getPostsSortedByLike")
+    public List<Post> getPostsSortedByLike() {
+        return postService.findPostsSortedByLike();
+    }
 
     @GetMapping("/getAllSortedByDate")
     public List<Post> getAllSortedByDate() {
@@ -70,13 +77,17 @@ public class PostController {
 
         String headline = body.get("headline");
         String content = body.get("content");
-        Category category = new Category(body.get("category"));
+//        Category category = new Category(body.get("category"));
         Long id = Long.parseLong(body.get("id"));
-        List<Category> categories = new ArrayList<>();
-        categories.add(category);
-        categoryService.addCategory(category);
+//        List<Category> categories = new ArrayList<>();
+//        categories.add(category);
+        
+//        if (!categoryService.findByName(body.get("category")).isPresent()) {
+//            categoryService.addCategory(category);
+//        }
+        
         Dad dad = dadService.findDadById(id).get();
-        Post post = postService.newPost(new Post(content, headline, categories, dad));
+        Post post = postService.newPost(new Post(content, headline, body.get("category"), dad));
         return post;
     }
 
@@ -88,17 +99,24 @@ public class PostController {
     }
 
     @PostMapping("/vote")
-    public Post updatePost(@RequestBody Map<String, Long> data) {
+   public Post updatePost(@RequestBody Map<String, Long> data) {
 
-        Post post = postService.findPostById(data.get("postId")).get();
+       Post post = postService.findPostById(data.get("postId")).get();
 
-        Dad dad = dadService.findDadById(data.get("userId")).get();
+       Dad dad = dadService.findDadById(data.get("userId")).get();
 
-        Vote vote = new Vote(data.get("voteValue").intValue(), dad, post);
+       Vote newVote = new Vote(data.get("voteValue").intValue(), dad, post);
 
-        post.getVotes().add(vote);
-        return postService.updatePost(post);
-    }
+       for (Iterator<Vote> iterator = post.getVotes().iterator(); iterator.hasNext();) {
+           Vote oldVote = iterator.next();
+           if (oldVote.getDad().getId() == newVote.getDad().getId()) {
+               iterator.remove();
+           }
+       }
+
+       post.getVotes().add(newVote);
+       return postService.updatePost(post);
+   }
 
     @PostMapping("/search")
     public ResponseEntity<List<Post>> getSearchPosts(@RequestParam String str) {
@@ -110,8 +128,19 @@ public class PostController {
         }
     }
 
-    @GetMapping("/getAll/{categoryId}")
-    public List<Post> getPostsFromCategory(@PathVariable String categoryId) {
-        return postService.findAllPostInCategory(new Long(categoryId));
+    @GetMapping("/getAll/{category}")
+    public List<Post> getPostsFromCategory(@PathVariable String category) {
+        List<Post> posts = postService.findAllPosts();
+        List<Post> filteredPosts = new ArrayList();
+        
+        filteredPosts = posts.stream().filter(p -> p.getCategory().equals(category)).collect(Collectors.toList());
+        
+//        for (Post post : posts) {
+//            if (post.getCategory().equals(category)) {
+//                filteredPosts.add(post);
+//            }
+//        }
+        System.out.println(filteredPosts.get(0).getCategory());
+        return filteredPosts;
     }
 }

@@ -24,6 +24,10 @@ public class CategoryService {
     public Optional<Category> findCategoryById(Long id) {
         return categoryRepo.findById(id);
     }
+    
+    public Optional<Category> findByName(String name) {
+        return categoryRepo.findByname(name);
+    }
 
     public Category addCategory(Category category) {
 

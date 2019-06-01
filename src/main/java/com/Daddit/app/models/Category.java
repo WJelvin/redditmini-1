@@ -11,6 +11,7 @@ public class Category {
     @GeneratedValue
     private long id;
     private String name;
+    
 
     public Category() {
     }

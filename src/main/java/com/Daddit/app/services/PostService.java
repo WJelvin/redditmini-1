@@ -44,6 +44,15 @@ public class PostService {
                 .limit(10).collect(Collectors.toList());
         return sortedPosts;
     }
+    public List<Post> findPostsSortedByLike() {
+        List<Post> sortedPosts = postRepo.findAll().stream()
+                .sorted((o1, o2) -> o2.getVotes().stream()
+                .reduce(0, (partialsum, vote) -> partialsum + vote.getVote(), Integer::sum)
+                .compareTo(o1.getVotes().stream()
+                        .reduce(0, (partialsum, vote) -> partialsum + vote.getVote(), Integer::sum)))
+                .collect(Collectors.toList());
+        return sortedPosts;
+    }
 
     public List<Post> findPostsSortedByDate() {
         return postRepo.findByOrderByCreatedDesc();
@@ -82,15 +91,16 @@ public class PostService {
         }
     }
 
-    public List<Post> findAllPostInCategory(Long categoryId) {
-        Category c = catservice.findCategoryById(categoryId).get();
+    public List<Post> findAllPostInCategory(String category) {
+//        Category c = catservice.findCategoryById(categoryId).get();
 
-        for (Post post : postRepo.findAll().stream().filter(p -> p.getCategories().contains(c)).collect(Collectors.toList())) {
-            post.getContent();
-        }
+//        for (Post post : postRepo.findAll().stream().filter(p -> p.getCategory().getName().equalsIgnoreCase(c.getName())).collect(Collectors.toList())) {
+//            post.getContent();
+//        }
 
-        return postRepo.findAll().stream().filter(p -> p.getCategories().contains(c)).collect(Collectors.toList());
+        return postRepo.findAll().stream().filter(p -> p.getCategory().equalsIgnoreCase(category)).collect(Collectors.toList());
 
     }
+    
 
 }

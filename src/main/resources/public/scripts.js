@@ -17,6 +17,7 @@ var user = {
 
 if (user.id !== null) {
     listPosts('http://localhost:8080/post/' + user.id);
+//    listPosts(top10Posts);
 } else {
     listPosts(top10Posts);
 }
@@ -31,34 +32,34 @@ function listPosts(url) {
             var main = E("main");
             main.innerHTML = "";
             for (var post in data) {
-                if (deleteButton === "" && user.moderator === true) {
-                    deleteButton = `<button id='` + data[post].id + `' class='btn btn-warning' onclick="deletePost(${data[post].id})" >DELETE POST (id ==` + data[post].id + `)</button>`;
+                if (user.moderator === true) {
+                    deleteButton = `<button id='${data[post].id}' class='btn btn-warning' onclick="deletePost(${data[post].id})" >DELETE POST (id == ${data[post].id})</button>`;
+                } else {
+                    deleteButton = "";
                 }
 
                 var postItem = document.createElement('div');
                 postItem.setAttribute('class', 'mb-3');
                 postItem.innerHTML = `<div class="row no-gutters">
                       <div class="col-md-1 bg-light text-center">
-                          <a href="javascript:void(0)" onclick="vote(` + data[post].id + `, ` + user.id + `,` + 1 + `)"> <i class="fas fa-chevron-up"></i></a> <br>
-                            ` + countVotes(data[post].votes) + `  <br>
-                          <a href="javascript:void(0)" onclick="vote(` + data[post].id + `, ` + user.id + `,` + -1 + `)"> <i class="fas fa-chevron-down"></i></a>
+                          <a href="javascript:void(0)" onclick="vote(${data[post].id}, ${user.id},${1})"> <i class="fas fa-chevron-up"></i></a> <br>
+                            ${countVotes(data[post].votes)}  <br>
+                          <a href="javascript:void(0)" onclick="vote(${data[post].id}, ${user.id},${-1})"> <i class="fas fa-chevron-down"></i></a>
                       </div>
                       <div class="col-md-11">
                           <div class="card-body">
-                              <p class="card-header bg-white pt-0">r/`
-                        + printCategories(data[post].categories)
-                        + `• Posted by u/`
-                        + data[post].dad.username + ` `
-                        + data[post].created + `
-                  <h5 class="card-title">  ` + data[post].headline + `  </h5>
-                          <p class="card-text">  ` + data[post].content + ` 
+                              <p class="card-header bg-white pt-0">r/
+                        <a href='#' onclick = 'getPostsbyCategory("${data[post].category}")'>${data[post].category}</a> • Posted by u/${data[post].dad.username} ${data[post].created}
+                  <h5 class="card-title">  ${data[post].headline}  </h5>
+                          <p class="card-text">  ${data[post].content} 
                           </p>
                       <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                ` + deleteButton + ` 
+                ${deleteButton} 
                   </div>
                   </div>
                   </div>
                       `;
+
                 main.appendChild(postItem);
             }
         } else {
@@ -82,15 +83,16 @@ function countVotes(votes) {
 }
 
 function printCategories(list) {
-    var allCategories = "";
+    var allCategories = `<a href='#' onclick = "getPostsbyCategory(${list})">${list}</a>`;
 
-    for (var i in list) {
 
-        if (list[i].name !== undefined) {
-            allCategories += "<a href='#' onclick = getPostsbyCategory(" + list[i].id + ") >" + list[i].name + "</a>, ";
-        }
-    }
-    return allCategories.substring(0, allCategories.length - 2);
+//    for (var i in list) {
+//
+//        if (list[i].name !== undefined) {
+//            allCategories += `<a href='#' onclick = getPostsbyCategory(${list[i].id})>${list[i].name} </a>,`;
+//        }
+//    }
+    return allCategories;
 }
 
 function logout() {
@@ -128,7 +130,7 @@ function getAllDads(url) {
             allDads.style.listStyle = 'none';
             for (var dad in data) {
                 var newItem = document.createElement('li');
-                newItem.innerHTML = "<a href='javascript: void(0);' onclick=\"listPosts('http://localhost:8080/post/" + data[dad].id + "')\"> " + data[dad].username + "</a>";
+                newItem.innerHTML = `<a href='javascript: void(0);' onclick=\"listPosts('http://localhost:8080/post/${data[dad].id}')\"> ${data[dad].username}</a>`;
                 allDads.appendChild(newItem);
             }
         } else {
@@ -161,13 +163,17 @@ function createNewDadAccount() {
             'Content-Type': 'application/json'
         }
     }).then(res => res.json())
+            .then(function (response) {
+                E('isloggedin').innerHTML = "";
+                setCurrentUser(response);
+                location.reload();
+            })
             .then(response => console.log('Success:', JSON.stringify(response)))
             .catch(error => console.error('Error:', error));
     location.reload();
 }
 
 function userLogin() {
-
     var url = 'http://localhost:8080/dad/login';
     var formData = JSON.stringify($("#loginForm").map(function () {
         return $(this).find('*').serializeArray()
@@ -182,15 +188,19 @@ function userLogin() {
         headers: {
             'Content-Type': 'application/json'
         }
-
     }).then(res => res.json())
             .then(function (response) {
                 E('isloggedin').innerHTML = "";
-                sessionStorage.setItem("username", response.username);
-                sessionStorage.setItem("moderator", response.moderator);
-                sessionStorage.setItem("id", response.id);
+                setCurrentUser(response);
                 location.reload();
-            }).catch(error => E('modalLogin').click(), loginError());
+            })
+            .catch(error => E('modalLogin').click(), loginError());
+}
+
+function setCurrentUser(user) {
+    sessionStorage.setItem("username", user.username);
+    sessionStorage.setItem("moderator", user.moderator);
+    sessionStorage.setItem("id", user.id);
 }
 
 function loginError() {
@@ -296,15 +306,15 @@ function buildForm(data) {
         postItem.setAttribute('class', 'mb-3');
         postItem.innerHTML = `<div class="row no-gutters">
                         <div class="col-md-1 bg-light text-center">
-                            <a href=""> <i class="fas fa-chevron-up"></i></a> <br>
-                            ` + countVotes(data[post].votes) + `<br>
-                            <a href=""> <i class="fas fa-chevron-down"></i></a>
+                            <a href="javascript:void(0)" onclick="vote(${data[post].id}, ${user.id},${1})"> <i class="fas fa-chevron-up"></i></a> <br>
+                            ${countVotes(data[post].votes)}  <br>
+                          <a href="javascript:void(0)" onclick="vote(${data[post].id}, ${user.id},${-1})"> <i class="fas fa-chevron-down"></i></a>
                         </div>
                         <div class="col-md-11">
                             <div class="card-body">
-                                <p class="card-header bg-white pt-0">r/`
-                + printCategories(data[post].categories)
-                + ` • Posted by u/`
+                                <p class="card-header bg-white pt-0">r/
+                <a href='#' onclick = 'getPostsbyCategory("${data[post].category}")'>${data[post].category}</a>
+                 • Posted by u/`
                 + data[post].dad.username + ` `
                 + data[post].created + `
                     <h5 class="card-title">` + data[post].headline + `</h5>
@@ -326,6 +336,7 @@ function getPostsbyCategory(sel) {
         success: function (data) {
 
             emptyForm();
+            console.log(data);
             buildForm(data);
 
         },
@@ -359,5 +370,4 @@ function vote(postId, userId, voteValue) {
 
 $(function () {
     $('[data-toggle="tooltip"]').tooltip();
-}
-);
+});

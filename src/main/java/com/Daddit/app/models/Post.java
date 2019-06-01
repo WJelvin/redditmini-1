@@ -8,8 +8,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.UniqueConstraint;
 
 @Entity
 public class Post {
@@ -19,9 +21,12 @@ public class Post {
     private Long id;
     private String content;
     private String headline;
-    
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    private List<Category> categories;
+//    @ManyToOne(cascade = CascadeType.ALL)
+//    @UniqueConstraint(name = "category")
+//    private Category category;
+    private String category;
+//    @ManyToMany(cascade = CascadeType.PERSIST)
+//    private List<Category> category;
     
     @OneToMany(cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList();
@@ -34,10 +39,11 @@ public class Post {
     public Post() {
     }
 
-    public Post(String content, String headline, List<Category> categories, Dad dad) {
+
+    public Post(String content, String headline, String category, Dad dad) {
         this.content = content;
         this.headline = headline;
-        this.categories = categories;
+        this.category = category;
         this.dad = dad;
         this.created = LocalDate.now();
     }
@@ -48,15 +54,23 @@ public class Post {
         this.created = LocalDate.now();
     }
 
-    public Post(String content, String headline, List<Category> categories, List<Vote> votes, Dad dad) {
+    public Post(String content, String headline, String category, List<Vote> votes, Dad dad) {
         this.content = content;
         this.headline = headline;
-        this.categories = categories;
+        this.category = category;
         this.votes = votes;
         this.created = LocalDate.now();
         this.dad = dad;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+    
     public Long getId() {
         return id;
     }
@@ -71,14 +85,6 @@ public class Post {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public List<Category> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
     }
 
     public List<Vote> getVotes() {
