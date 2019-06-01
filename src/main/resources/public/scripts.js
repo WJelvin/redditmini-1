@@ -31,7 +31,7 @@ function listPosts(url) {
             var main = E("main");
             main.innerHTML = "";
             for (var post in data) {
-                if (deleteButton === "" && user.moderator === true) {
+                if (user.moderator === true) {
                     deleteButton = `<button id='` + data[post].id + `' class='btn btn-warning' onclick="deletePost(${data[post].id})" >DELETE POST (id ==` + data[post].id + `)</button>`;
                 }
 
@@ -160,10 +160,11 @@ function createNewDadAccount() {
         headers: {
             'Content-Type': 'application/json'
         }
-    }).then(res => res.json())
-            .then(response => console.log('Success:', JSON.stringify(response)))
-            .catch(error => console.error('Error:', error));
-    location.reload();
+    }).then(function (response) {
+        E('isloggedin').innerHTML = "";
+        setCurrentUser(response);
+        location.reload();
+    })
 }
 
 function userLogin() {
@@ -185,11 +186,9 @@ function userLogin() {
 
     }).then(res => res.json())
             .then(function (response) {
-                E('isloggedin').innerHTML = "";
-                sessionStorage.setItem("username", response.username);
-                sessionStorage.setItem("moderator", response.moderator);
-                sessionStorage.setItem("id", response.id);
-                location.reload();
+               E('isloggedin').innerHTML = "";
+               setCurrentUser(response);
+               location.reload();          
             }).catch(error => E('modalLogin').click(), loginError());
 }
 
@@ -361,3 +360,9 @@ $(function () {
     $('[data-toggle="tooltip"]').tooltip();
 }
 );
+
+function setCurrentUser(user) {
+    sessionStorage.setItem("username", user.username);
+    sessionStorage.setItem("moderator", user.moderator);
+    sessionStorage.setItem("id", user.id);
+}

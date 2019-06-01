@@ -92,5 +92,15 @@ public class PostService {
         return postRepo.findAll().stream().filter(p -> p.getCategories().contains(c)).collect(Collectors.toList());
 
     }
+    
+    public List<Post> findPostsSortedByLike() {
+       List<Post> sortedPosts = postRepo.findAll().stream()
+               .sorted((o1, o2) -> o2.getVotes().stream()
+               .reduce(0, (partialsum, vote) -> partialsum + vote.getVote(), Integer::sum)
+               .compareTo(o1.getVotes().stream()
+                       .reduce(0, (partialsum, vote) -> partialsum + vote.getVote(), Integer::sum)))
+               .collect(Collectors.toList());
+       return sortedPosts;
+   }
 
 }

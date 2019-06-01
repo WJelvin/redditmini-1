@@ -1,6 +1,7 @@
 package com.Daddit.app.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -19,12 +20,8 @@ public class Category {
     private long id;
     private String name;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
-    @JoinTable(
-            name = "POST_CATEGORIES ",
-            joinColumns = @JoinColumn(name = "CATEGORIES_ID"),
-            inverseJoinColumns = @JoinColumn(name = "POST_ID"))
-    @JsonBackReference        
+    @ManyToMany(mappedBy = "categories")
+    @JsonBackReference
     List<Post> posts;
 
     public Category() {
@@ -58,5 +55,4 @@ public class Category {
         this.posts = posts;
     }
 
-    
 }

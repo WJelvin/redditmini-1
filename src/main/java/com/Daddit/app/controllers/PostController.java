@@ -80,31 +80,30 @@ public class PostController {
         Long id = Long.parseLong(body.get("id"));
         Dad dad = dadService.findDadById(id).get();
         Post post = new Post(content, headline, dad);
-        postService.newPost(post);
 
-        List<Category> categories = categoriesStrings.stream().map(n -> new Category(n)).collect(Collectors.toList());
-        List<Category> realcategories = new ArrayList<>();
+        List<Category> stringtocategories = categoriesStrings.stream().map(n -> new Category(n)).collect(Collectors.toList());
+        List<Category> categories = new ArrayList<>();
 
-        for (Category c : categories) {
-            List<Post> newCposts = new ArrayList<>();
-            List<Post> oldCposts = new ArrayList<>();
+        stringtocategories.forEach((c) -> {
             if (!categoryRepository.findByname(c.getName()).isPresent()) {
-                newCposts.add(post);
-                c.setPosts(newCposts);
                 categoryService.addCategory(c);
-
+                categories.add(c);
             } else {
                 Category oldCategory = categoryRepository.findByname(c.getName()).get();
-                oldCposts = oldCategory.getPosts();
-                oldCposts.add(post);
-                c = oldCategory;
-                c.setPosts(oldCposts);
-                categoryService.addCategory(c);
+                categories.add(oldCategory);
             }
-            realcategories.add(c);
-        }
-        post.setCategories(realcategories);
+        });
+        post.setCategories(categories);
+        postService.newPost(post);
 
+        categories.forEach((c) -> {
+            List<Post> posts = new ArrayList<>();
+            if (c.getPosts() != null) {
+                posts = c.getPosts();
+            }
+            posts.add(post);
+            c.setPosts(posts);
+        });
         URI location = ServletUriComponentsBuilder.fromPath("http://localhost:8080").build().toUri();
 
         return post;
@@ -150,5 +149,10 @@ public class PostController {
     @GetMapping("/getAll/{categoryId}")
     public List<Post> getPostsFromCategory(@PathVariable String categoryId) {
         return postService.findAllPostInCategory(new Long(categoryId));
+    }
+
+    @GetMapping("/getPostsSortedByLike")
+    public List<Post> getPostsSortedByLike() {
+        return postService.findPostsSortedByLike();
     }
 }

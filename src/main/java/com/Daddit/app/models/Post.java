@@ -1,5 +1,6 @@
 package com.Daddit.app.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -8,6 +9,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -20,14 +23,14 @@ public class Post {
     private Long id;
     private String content;
     private String headline;
-    
-    @ManyToMany(mappedBy = "posts")
+
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JsonManagedReference
     private List<Category> categories;
-    
+
     @OneToMany(cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList();
-    
+
     private LocalDate created;
 
     @OneToOne
@@ -43,6 +46,7 @@ public class Post {
         this.dad = dad;
         this.created = LocalDate.now();
     }
+
     public Post(String content, String headline, Dad dad) {
         this.content = content;
         this.headline = headline;

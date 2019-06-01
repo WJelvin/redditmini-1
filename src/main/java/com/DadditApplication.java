@@ -45,41 +45,50 @@ public class DadditApplication {
             dadRepo.save(dad2);
             dadRepo.save(dad3);
             dadRepo.save(dad4);
-
-            Post post1 = new Post("A dad walks into a bar", "My first joke",  dad1);
-            Post post2 = new Post("A dad walks out of a shop", "My second joke",  dad2);
-            postRepo.save(post1);
-            postRepo.save(post2);
-
-            List<Post> posts = new ArrayList<>();
-            List<Post> posts2 = new ArrayList<>();
-            posts.add(post1);
-            posts.add(post2);
-            posts2.add(post1);
-
             
-            List<Category> categories = new ArrayList<>();
-            List<Category> categories2 = new ArrayList<>();
-
             Category category1 = new Category("r-rated");
             Category category2 = new Category("mild");
             Category category3 = new Category("mom joke");
             Category category4 = new Category("holiday");
+            
+            categoryRepo.save(category1);
+            categoryRepo.save(category2);
+            categoryRepo.save(category3);
+            categoryRepo.save(category4);
+            
+            List<Category> categories = new ArrayList<>();
+            List<Category> categories2 = new ArrayList<>();
+
             
             categories.add(category1);
             categories.add(category2);
             categories.add(category3);
             categories.add(category4);
             categories2.add(category4);
+            
+
+            Post post1 = new Post("A dad walks into a bar", "My first joke",  dad1);
+            Post post2 = new Post("A dad walks out of a shop", "My second joke",  dad2);
+            
+            post1.setCategories(categories);
+            post2.setCategories(categories2);
+
+            List<Post> posts = new ArrayList<>();
+            List<Post> posts2 = new ArrayList<>();
+            postRepo.save(post1);
+            postRepo.save(post2);
+            posts.add(post1);
+            posts.add(post2);
+            posts2.add(post1);
+
+            
+            
             category1.setPosts(posts2);
             category2.setPosts(posts2);
             category3.setPosts(posts2);
             category4.setPosts(posts);
                        
-            categoryRepo.save(category1);
-            categoryRepo.save(category2);
-            categoryRepo.save(category3);
-            categoryRepo.save(category4);
+           
             
 
             List<Vote> votesList = new ArrayList<>();
@@ -103,10 +112,10 @@ public class DadditApplication {
             votesList2.add(vote5);
             votesList2.add(vote6);
        
-            post1.setCategories(categories);
+            
             post1.setVotes(votesList);
                      
-            post2.setCategories(categories2);
+            
             post2.setVotes(votesList2);
             
             
