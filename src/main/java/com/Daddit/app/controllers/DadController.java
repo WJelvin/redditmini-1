@@ -34,17 +34,14 @@ public class DadController {
         
         String username = body.get("username");
         String password = body.get("password");
-        System.out.println(username + password);
         Dad newDad = new Dad(username, password);
         return dadService.addDad(newDad);
     }
     
    @PostMapping("/login")
     public Dad getLoginResult(@RequestBody Map<String, String> login) {
-        System.out.println(login.get("login_username"));
         Dad logindad = dadService.logInDad(login.get("login_username"), login.get("login_password"));
         if (logindad != null) {
-            System.out.println(logindad);
             return logindad;
         }
         else{

@@ -29,7 +29,7 @@ public class Post {
     private List<Category> categories;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Vote> votes = new ArrayList();
+    private List<Vote> votes;
 
     private LocalDate created;
 

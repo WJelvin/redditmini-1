@@ -1,12 +1,12 @@
-var allDadsURL = "http://localhost:8080/dad/getAll";
-var top10Posts = "http://localhost:8080/post/getTop10";
-var allPosts = "http://localhost:8080/post/getAll";
+var baseUrl = "http://localhost:8080";
+var allDadsURL = baseUrl + "/dad/getAll";
+var top10Posts = baseUrl + "/post/getTop10";
+var allPosts = baseUrl + "/post/getAll";
+var currentView = top10Posts;
+var ownPosts = "";
+
+listPosts(currentView);
 getAllDads(allDadsURL);
-
-
-function E(id) {
-    return document.getElementById(id);
-}
 
 var isModeratorTrueOrFalse = (sessionStorage.getItem('moderator') === 'true');
 var user = {
@@ -15,10 +15,14 @@ var user = {
     moderator: isModeratorTrueOrFalse
 };
 
+function setCurrentUser(user) {
+    sessionStorage.setItem("username", user.username);
+    sessionStorage.setItem("moderator", user.moderator);
+    sessionStorage.setItem("id", user.id);
+}
+
 if (user.id !== null) {
-    listPosts('http://localhost:8080/post/' + user.id);
-} else {
-    listPosts(top10Posts);
+    ownPosts = baseUrl + "/post/" + user.id;
 }
 
 function listPosts(url) {
@@ -29,10 +33,19 @@ function listPosts(url) {
         if (request.status >= 200 && request.status < 400) {
             var data = JSON.parse(request.responseText);
             var main = E("main");
+            var numberOfOwnPosts = 0;
+            var numberOfTotalPostsByOtherUsers = 0;
             main.innerHTML = "";
             for (var post in data) {
+
+                if (data[post].dad.username === user.username) {
+                    numberOfOwnPosts++;
+                } else {
+                    numberOfTotalPostsByOtherUsers++;
+                }
+
                 if (user.moderator === true) {
-                    deleteButton = `<button id='` + data[post].id + `' class='btn btn-warning' onclick="deletePost(${data[post].id})" >DELETE POST (id ==` + data[post].id + `)</button>`;
+                    deleteButton = `<button id='` + data[post].id + `' class='btn btn-warning' onclick="deletePost(${data[post].id})" >DELETE POST</button>`;
                 }
 
                 var postItem = document.createElement('div');
@@ -53,7 +66,6 @@ function listPosts(url) {
                   <h5 class="card-title">  ` + data[post].headline + `  </h5>
                           <p class="card-text">  ` + data[post].content + ` 
                           </p>
-                      <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
                 ` + deleteButton + ` 
                   </div>
                   </div>
@@ -63,6 +75,11 @@ function listPosts(url) {
             }
         } else {
             alert('Some undefined error while reading from the funny dad server!');
+        }
+        
+
+        if (numberOfOwnPosts === 0 && numberOfTotalPostsByOtherUsers === 0) {
+            main.innerHTML = "<br><div style='text-align: center'>Nothing. Absolutely nothing.</div>";
         }
     };
 
@@ -128,7 +145,7 @@ function getAllDads(url) {
             allDads.style.listStyle = 'none';
             for (var dad in data) {
                 var newItem = document.createElement('li');
-                newItem.innerHTML = "<a href='javascript: void(0);' onclick=\"listPosts('http://localhost:8080/post/" + data[dad].id + "')\"> " + data[dad].username + "</a>";
+                newItem.innerHTML = "<a href='javascript: void(0);' onclick=\"listPosts('" + baseUrl + "/post/" + data[dad].id + "')\"> " + data[dad].username + "</a>";
                 allDads.appendChild(newItem);
             }
         } else {
@@ -144,7 +161,7 @@ function getAllDads(url) {
 ;
 
 function createNewDadAccount() {
-    var url = 'http://localhost:8080/dad/addDad';
+    var url = baseUrl + '/dad/addDad';
 
     var formData = JSON.stringify($("#createDadForm").map(function () {
         return $(this).find('*').serializeArray()
@@ -153,23 +170,24 @@ function createNewDadAccount() {
 
     var data = formData.substring(1, formData.length - 1);
 
-
     fetch(url, {
         method: 'POST',
         body: data,
         headers: {
             'Content-Type': 'application/json'
         }
-    }).then(function (response) {
-        E('isloggedin').innerHTML = "";
-        setCurrentUser(response);
-        location.reload();
-    })
+    }).then(res => res.json())
+            .then(function (response) {
+                E('isloggedin').innerHTML = "";
+                setCurrentUser(response);
+                location.reload();
+            });
 }
+
 
 function userLogin() {
 
-    var url = 'http://localhost:8080/dad/login';
+    var url = baseUrl + '/dad/login';
     var formData = JSON.stringify($("#loginForm").map(function () {
         return $(this).find('*').serializeArray()
                 .reduce((a, x) => ({...a, [x.name]: x.value}), {});
@@ -186,9 +204,9 @@ function userLogin() {
 
     }).then(res => res.json())
             .then(function (response) {
-               E('isloggedin').innerHTML = "";
-               setCurrentUser(response);
-               location.reload();          
+                E('isloggedin').innerHTML = "";
+                setCurrentUser(response);
+                location.reload();
             }).catch(error => E('modalLogin').click(), loginError());
 }
 
@@ -199,11 +217,10 @@ function loginError() {
 if (user.username !== null) {
     E('login_menu').style.display = 'none';
     E('signup_menu').style.display = 'none';
-
 }
 
 function createPost() {
-    var url = 'http://localhost:8080/post/newPost';
+    var url = baseUrl + '/post/newPost';
     var formData = JSON.stringify($("#createNewPostForm").map(function () {
         return $(this).find('*').serializeArray()
                 .reduce((a, x) => ({...a, [x.name]: x.value}), {});
@@ -240,7 +257,7 @@ function createFormForPost() {
 }
 
 function deletePost(id) {
-    var url = 'http://localhost:8080/post/deletePost';
+    var url = baseUrl + '/post/deletePost';
     var data = JSON.stringify({"id": id});
 
 
@@ -257,9 +274,7 @@ function deletePost(id) {
 }
 
 function searchPostsbyString() {
-
     var searchString = $("#form-control").val();
-
     $.ajax({
         url: '/post/search',
         type: 'POST',
@@ -269,12 +284,10 @@ function searchPostsbyString() {
         success: function (data) {
             emptyForm();
             buildForm(data);
-
         },
         error: function (responseTxt, statusTxt, errorThrown) {
             emptyForm();
             $("#main").html("<p>There is 0 result.</p>");
-
         }
     });
 }
@@ -284,7 +297,6 @@ var searchForm = E("form-control");
 searchForm.addEventListener("keyup", function (event) {
     if (event.keyCode === 13) {
         searchPostsbyString();
-
     }
 });
 
@@ -309,7 +321,7 @@ function buildForm(data) {
                     <h5 class="card-title">` + data[post].headline + `</h5>
                             <p class="card-text">` + data[post].content + `
                             </p>
-                        <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                        
                     </div>
                     </div>
                     </div>
@@ -323,10 +335,8 @@ function getPostsbyCategory(sel) {
         url: '/post/getAll/' + sel,
         type: 'GET',
         success: function (data) {
-
             emptyForm();
             buildForm(data);
-
         },
         error: function (responseTxt, statusTxt, errorThrown) {
             emptyForm();
@@ -343,7 +353,7 @@ function emptyForm() {
 function vote(postId, userId, voteValue) {
     var data = {"postId": postId, "userId": userId, "voteValue": voteValue};
     //Get post from db
-    let url = "http://localhost:8080/post/vote";
+    let url = baseUrl + "/post/vote";
     fetch(url, {
         method: 'POST',
         body: JSON.stringify(data),
@@ -358,11 +368,8 @@ function vote(postId, userId, voteValue) {
 
 $(function () {
     $('[data-toggle="tooltip"]').tooltip();
-}
-);
+});
 
-function setCurrentUser(user) {
-    sessionStorage.setItem("username", user.username);
-    sessionStorage.setItem("moderator", user.moderator);
-    sessionStorage.setItem("id", user.id);
+function E(id) {
+    return document.getElementById(id);
 }

@@ -95,9 +95,9 @@
                         <a href="javascript: void(0);" class="btn btn-primary" onclick="createFormForPost()" >Create Post</a>
 
                         <form id="createNewPostForm"  name="createNewPost" accept-charset="UTF-8" style="display: none; padding-top: 12px;">
-                            <label>Headline</label><br><input type="text" name="headline" id="headline"><br>
+                            <label>Headline</label><br><input style="width: 100%;" type="text" name="headline" id="headline"><br>
                             <label>Content </label><textarea style="width: 100%; height: 80px;" name="content" id="content"></textarea><br>
-                            <label>Category </label><br><input type="text" name="category" id="category"><br><br>
+                            <label>Category </label><br><input type="text" style="width: 100%" name="category" id="category" placeholder="Ex. 'dad joke,family,irl'"><br><br>
                             <input type="hidden" name="id" id="postUserID" value="">
                             <input value="Submit funny" type="button" class="btn btn-primary" onclick="createPost()">
                         </form>
@@ -130,9 +130,9 @@
                     </div>
                     <div class="modal-body">
                         <form name="loginForm" id="loginForm">
-                            <label class="signinLabel">Username:</label>
+                            <label class="signinLabel" style="display: inline-block; width: 80px">Username:</label>
                             <input type="text" name="login_username" id="login_username"><br>
-                            <label class="signinLabel">Password:</label>
+                            <label class="signinLabel" style="display: inline-block; width: 80px">Password:</label>
                             <input type="password" name="login_password" id="login_password"> <br><br>
                         </form>
                     </div>
@@ -154,9 +154,9 @@
                     </div>
                     <div class="modal-body">
                         <form name="createDadForm" id="createDadForm">
-                            <label class="createDadLabel">Username:</label>
+                            <label class="createDadLabel" style="display: inline-block; width: 80px">Username:</label>
                             <input type="text" name="username" id="username"><br>
-                            <label class="createDadLabel">Password:</label>
+                            <label class="createDadLabel" style="display: inline-block; width: 80px">Password:</label>
                             <input type="password" name="password" id="password"><br><br>
                         </form>  
 
