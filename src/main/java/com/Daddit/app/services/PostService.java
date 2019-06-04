@@ -49,9 +49,7 @@ public class PostService {
         return postRepo.findByOrderByCreatedDesc();
     }
 
-//    public List<Post> findAllPostInCategory(String Category) {
-//        return null;
-//    }
+
     public Post newPost(Post post) {
         postRepo.save(post);
         return post;

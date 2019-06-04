@@ -34,8 +34,6 @@ public class DadService {
         if (!dadRepo.findByUsername(dad.getUsername()).isPresent()) {
             //add a dad
             dadRepo.save(dad);
-
-            //return true or false
             return dad;
         } else {
             return null;

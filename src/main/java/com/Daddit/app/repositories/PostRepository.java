@@ -8,15 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    /*
-    vi kanske behöver querymetoder? 
-    
-    - findTopPost
-    - findTopFiveposts
-    - findByDad x
-    - findByCategory
-    
-     */
     
     List<Post> findByOrderByCreatedDesc();
 }
