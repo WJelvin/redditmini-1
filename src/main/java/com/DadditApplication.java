@@ -85,16 +85,7 @@ public class DadditApplication {
             List<Post> posts2 = new ArrayList<>();
             List<Post> posts3 = new ArrayList<>();
             List<Post> posts4 = new ArrayList<>();
-            postRepo.save(post1);
-            postRepo.save(post2);
-            postRepo.save(post3);
-            postRepo.save(post4);
-            posts.add(post1);
-            posts.add(post2);
-            posts2.add(post1);
-            posts3.add(post3);
-            posts4.add(post4);
-            
+           
             category1.setPosts(posts2);
             category2.setPosts(posts2);
             category3.setPosts(posts2);
@@ -120,6 +111,16 @@ public class DadditApplication {
             
             post1.setVotes(votesList);
             post2.setVotes(votesList2);
+            
+            postRepo.save(post1);
+            postRepo.save(post2);
+            postRepo.save(post3);
+            postRepo.save(post4);
+            posts.add(post1);
+            posts.add(post2);
+            posts2.add(post1);
+            posts3.add(post3);
+            posts4.add(post4);
             
         };
     }
